@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Alert } from 'react-native';
 
 import { Header } from '../components/Header';
 import { Task, TasksList } from '../components/TasksList';
@@ -21,6 +21,14 @@ export function Home() {
       done: false
     }
 
+    const findTaskWithSameTitle = tasks.find(task => {
+      return task.title.toLowerCase() === newTaskTitle.toLowerCase();
+    });
+
+    if (findTaskWithSameTitle) {
+      return Alert.alert("Você não pode cadastrar uma task com o mesmo nome!");
+    }
+
     setTasks([...tasks, task]);
   }
 
@@ -32,11 +40,32 @@ export function Home() {
     setTasks(updatedTasks);
   }
 
+  function removeTaskAlert(id: number) {
+    Alert.alert("ATENÇÃO", "Tem certeza que você deseja remover este item?", [
+      {
+        text: "Sim",
+        onPress: () => handleRemoveTask(id)
+      },
+      {
+        text: "Não",
+        onPress: () => { }
+      }
+    ])
+  }
+
   function handleRemoveTask(id: number) {
     const filteredTask = tasks.filter(task => {
       return task.id !== id;
     });
     setTasks(filteredTask);
+  }
+
+  function handleEditTask(taskId: number, taskNewTitle: string) {
+    const updatedTasks = tasks.map(task => {
+      if (task.id === taskId) task.title = taskNewTitle;
+      return task;
+    });
+    setTasks(updatedTasks);
   }
 
   return (
@@ -48,7 +77,8 @@ export function Home() {
       <TasksList
         tasks={tasks}
         toggleTaskDone={handleToggleTaskDone}
-        removeTask={handleRemoveTask}
+        removeTask={removeTaskAlert}
+        editTask={handleEditTask}
       />
     </View>
   )
